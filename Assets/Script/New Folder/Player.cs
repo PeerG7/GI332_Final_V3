@@ -17,61 +17,68 @@ public class Player : Entity
     {
         playerCollider = GetComponent<Collider>();
     }
+    public override void OnNetworkSpawn()
+    {
+        if (IsOwner)
+        {
+            Controls = new InputSystem_Actions(); // สร้างใหม่แน่ๆ
+            Controls.Enable();
+            Controls.Player.Enable();
+        }
+    }
     protected virtual void Class() { }
     protected override void Awake()
     {
         rb = GetComponent<Rigidbody>();
         Controls = new InputSystem_Actions();
-        Controls.Enable();
+        
     }
     protected override void Update()
     {
         if (!IsOwner) return;
+
+        // เช็คว่า Action Map enabled จริงไหม
+        if (!Controls.Player.enabled)
+        {
+            Controls.Player.Enable();
+            return;
+        }
+
         MoveInput = Controls.Player.Move.ReadValue<Vector2>();
         Class();
         UpdateCooldownServerRpc(Time.deltaTime);
     }
     protected override void FixedUpdate()
     {
-        Vector3 movement = new Vector3(MoveInput.x, 0f, MoveInput.y);
-        // 1. หา "เป้าหมาย" ของทิศทางที่อยากไป
-        Vector3 targetDirection = new Vector3(MoveInput.x, 0, MoveInput.y).normalized;
-
-        // 2. ใช้ Lerp ค่อยๆ ปรับความเร็วปัจจุบัน (currentVelocity) ให้ไปหาเป้าหมาย
-        // วิธีนี้จะทำให้เวลาปล่อยปุ่ม ค่าจะไม่กลายเป็น 0 ทันที แต่จะค่อยๆ ลดลงจนหยุด
-        currentVelocity = Vector3.Lerp(currentVelocity, targetDirection, SmoothTime * Time.fixedDeltaTime);
-
-        // 3. บวกตำแหน่งด้วยความเร็วที่กำลังไหลอยู่
-        transform.position += currentVelocity * Speed * Time.deltaTime;
-
-        if (rb != null)
-        {
-            rb.mass = Def;
-        }
         if (!IsOwner) return;
 
-        // เช็คตาย: ให้ Server เป็นคนสั่ง Die() เพื่อความแน่นอน
+        Vector3 targetDirection = new Vector3(MoveInput.x, 0, MoveInput.y).normalized;
+        currentVelocity = Vector3.Lerp(currentVelocity, targetDirection, SmoothTime * Time.fixedDeltaTime);
+        transform.position += currentVelocity * Speed * Time.deltaTime;
+
+        if (rb != null) rb.mass = Def;
+
+        // ✅ เหลือแค่ IsServer เช็ค (ลบ if (!IsOwner) return; ซ้ำออก)
         if (IsServer && Hp.Value <= 0)
         {
-            // ค้นหา InGameController ในฉาก
             InGameController controller = Object.FindAnyObjectByType<InGameController>();
             if (controller != null)
-            {
-                controller.OnPlayerDie(OwnerClientId); // ส่ง ID คนตายไปให้ Controller
-            }
-
-            // สั่งทำลาย Object หรือปิดตัวละคร
+                controller.OnPlayerDie(OwnerClientId);
             GetComponent<NetworkObject>().Despawn();
         }
-
     }
     protected void OnEnable()
     {
-        Controls.Player.Enable();
+        if (Controls != null)
+        {
+            Controls.Enable();
+            Controls.Player.Enable();
+        }
     }
     protected void OnDisable()
     {
-        Controls.Player.Disable();
+        if (Controls != null)
+            Controls.Player.Disable();
     }
     public void StartGame()
     {
