@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b94513c2ba7d16240809047c0de3188c, type: 3}
+  m_Name: Tank
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterData
+  characterName: Tank
+  characterIcon: {fileID: 21300000, guid: df91203cb4bca83459a3bc0ca6522c64, type: 3}
+  playerPrefab: {fileID: 133394007548973710, guid: 8f24de174da09ea409ec47765c200cd2, type: 3}
