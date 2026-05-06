@@ -20,7 +20,7 @@ GameObject:
   - component: {fileID: -5739551976391365032}
   m_Layer: 0
   m_Name: Tank
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -155,7 +155,7 @@ MonoBehaviour:
   Def: 0
   isDead: 0
   GameStart: 0
-  visuals: {fileID: 0}
+  visuals: {fileID: 8403918531249112149}
   Cooldown:
     m_InternalValue: 0
   CanCast: 5

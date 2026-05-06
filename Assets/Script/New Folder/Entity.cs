@@ -49,13 +49,14 @@ public class Entity : NetworkBehaviour
     {
         if (GameStart)
         {
-            if (isDead) return; // ถ้าตายแล้ว ไม่ต้องทำข้างล่างซ้ำ
+            if (isDead) return;
 
-            Hp.Value -= damage;
+            int actualDamage = Mathf.Max(1, damage - Def); // ✅ หัก Def แต่ขั้นต่ำ 1
+            Hp.Value -= actualDamage;
 
             if (Hp.Value <= 0)
             {
-                isDead = true; // ล็อคไว้ทันทีว่าคนนี้ตายแล้วนะ
+                isDead = true;
                 Hp.Value = 0;
 
                 if (InGameController.Instance != null)
@@ -64,7 +65,6 @@ public class Entity : NetworkBehaviour
                 }
             }
         }
-        
     }
     protected void Die()
     {
