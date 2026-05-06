@@ -8,6 +8,7 @@ public class Jumper : Player
     private bool isGrounded;
     protected override void Start()
     {
+        transform.rotation = Quaternion.Euler(-90f, 0f, 0f);
         if (IsOwner)
         {
             RequestInitializeStatsServerRpc();

@@ -21,44 +21,47 @@ public class Player : Entity
     {
         if (IsOwner)
         {
-            Controls = new InputSystem_Actions(); // สร้างใหม่แน่ๆ
+            // ไม่ต้อง new อีกแล้ว แค่ Enable
             Controls.Enable();
             Controls.Player.Enable();
         }
+        else
+        {
+            Controls.Disable();
+        }
     }
+
     protected virtual void Class() { }
     protected override void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        Controls = new InputSystem_Actions();
-        
+        Controls = new InputSystem_Actions(); // สร้างแค่ครั้งเดียวตรงนี้
+        Application.runInBackground = true;
     }
     protected override void Update()
     {
         if (!IsOwner) return;
 
-        // เช็คว่า Action Map enabled จริงไหม
-        if (!Controls.Player.enabled)
-        {
-            Controls.Player.Enable();
-            return;
-        }
-
-        MoveInput = Controls.Player.Move.ReadValue<Vector2>();
+        
         Class();
         UpdateCooldownServerRpc(Time.deltaTime);
+        /*Debug.Log($"Player.enabled={Controls.Player.enabled} | Move.enabled={Controls.Player.Move.enabled}");
+        Debug.Log($"HasFocus={Application.isFocused} | MoveInput={MoveInput}");*/
     }
     protected override void FixedUpdate()
     {
         if (!IsOwner) return;
 
+        MoveInput = Controls.Player.Move.ReadValue<Vector2>();
+
         Vector3 targetDirection = new Vector3(MoveInput.x, 0, MoveInput.y).normalized;
         currentVelocity = Vector3.Lerp(currentVelocity, targetDirection, SmoothTime * Time.fixedDeltaTime);
-        transform.position += currentVelocity * Speed * Time.deltaTime;
 
+        // ✅ เปลี่ยนจาก transform.position += เป็น rb.MovePosition
+        Vector3 newPosition = rb.position + currentVelocity * Speed * Time.fixedDeltaTime;
+        rb.MovePosition(newPosition);
+        rb.AddTorque(Vector3.forward * -currentVelocity.x *Speed * 30000f, ForceMode.Impulse);
         if (rb != null) rb.mass = Def;
-
-        // ✅ เหลือแค่ IsServer เช็ค (ลบ if (!IsOwner) return; ซ้ำออก)
         if (IsServer && Hp.Value <= 0)
         {
             InGameController controller = Object.FindAnyObjectByType<InGameController>();
@@ -78,7 +81,18 @@ public class Player : Entity
     protected void OnDisable()
     {
         if (Controls != null)
+        {
             Controls.Player.Disable();
+            Controls.UI.Disable();
+            Controls.Disable();
+        }
+    }
+    protected void OnDestroy()
+    {
+        if (Controls != null)
+        {
+            Controls.Dispose(); // ✅ Dispose เมื่อ Object ถูกทำลาย
+        }
     }
     public void StartGame()
     {

@@ -8,8 +8,8 @@ public class Entity : NetworkBehaviour
     [SerializeField] private GameObject winUI;
     [SerializeField] private GameObject loseUI;
     public NetworkVariable<int> Hp = new NetworkVariable<int>(100, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    protected float Speed;
-    protected int Def;
+    public float Speed;
+    public int Def;
     protected int AtkPower;
     protected Rigidbody rb;
     protected StopHelper helper;

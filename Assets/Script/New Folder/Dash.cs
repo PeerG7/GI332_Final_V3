@@ -6,13 +6,14 @@ public class Dash : Player
     private float dashForce = 10f;
     protected override void Start()
     {
+        transform.rotation = Quaternion.Euler(-90f, 0f, 0f);
         if (IsOwner)
         {
-            Hp.Value = 100;
+            RequestInitializeStatsServerRpc();
         }
-        Speed = 10f;
-        Def = 1;
-        AtkPower = 20;
+        Speed = 15f;
+        Def = 2;
+        AtkPower = 25;
         SmoothTime = 3f;
     }
 
@@ -33,7 +34,15 @@ public class Dash : Player
             dashDir = transform.forward;
         }
         rb.AddForce(dashDir * dashForce, ForceMode.Impulse);
+        Speed *= 3f;
         helper = GetComponent<StopHelper>();
         helper.ResetAfter(1f);
+        Invoke("ResetSpeed", 3f);
+    }
+
+    private float originalSpeed;
+    private void ResetSpeed()
+    {
+        Speed /= 3f;
     }
 }

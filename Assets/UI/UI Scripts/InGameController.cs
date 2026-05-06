@@ -32,7 +32,13 @@ public class InGameController : NetworkBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
+    /*public void StartGame()
+    {
+        if (!IsServer) return;
 
+        StartGameClientRpc(); // แก้ UI
+        InGameController.Instance.RequestStartServerRpc(); // ✅ เพิ่มบรรทัดนี้
+    }*/
     void Update()
     {
         if (!IsClient && !IsServer) return;
